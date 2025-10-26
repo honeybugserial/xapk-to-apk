@@ -1,60 +1,96 @@
-# XapkToApk
+# XapkToApk - Standalone Windows Fork
 
-A simple standalone Python script with no extra library dependencies that converts the `.xapk` file into a normal `.apk` file.
+This is a Windows-focused fork of the original **XapkToApk** tool, updated to run fully offline and locally on Windows without needing to install or configure system-wide tools.
 
-### Usage
+This version includes:
+- Local tooling (`apktool`, `zipalign`, `apksigner`)
+- Auto-handling of `.xapk` extraction, APK part merging, zipalign, and signing
+- Optional auto-generated debug keystore if one isn't provided
 
-The usage is very simple.
+---
 
-First, clone the repo and make sure the script has execution permission:
+## ✅ Features
+
+- ✔️ Converts `.xapk` files into installable `.apk`
+- ✔️ Cleans `AndroidManifest.xml` to remove split requirements
+- ✔️ Uses `apktool` to unpack and rebuild the main APK
+- ✔️ Zipaligns APK for optimal installation
+- ✔️ **Signs automatically** with:
+  - Either a user-provided keystore (`xapktoapk.sign.properties`)
+  - Or a locally generated debug keystore
+- 🧰 **Standalone: no external setup required on Windows**
+
+---
+
+## 🔧 Requirements
+
+- 🪟 **Windows Build**
+- 💡 All required tools must exist in the local `tools/` directory:
+
 ```
-git clone https://github.com/LuigiVampa92/xapk-to-apk
-cd xapk-to-apk
-chmod +x xapktoapk.py
+tools/
+├── apktool.bat
+├── apktool_*.jar
+├── zipalign.exe
+├── apksigner.bat
+└── apksigner.jar
 ```
 
-Get your .xapk file ready, put it near the script, and execute the script: 
+- 🧾 Optional: `xapktoapk.sign.properties` to control signing behavior (see below)
+
+---
+
+## 🚀 Usage
+
+Place your `.xapk` file in the same directory as the script, then run:
+
+```bash
+python xapktoapk-Local-Win.py "YourApp.xapk"
 ```
-python xapktoapk.py application.xapk
+
+The script will:
+1. Extract the `.xapk`
+2. Decompile the main APK
+3. Clean the manifest
+4. Rebuild and zipalign
+5. Sign the APK (with debug or user keystore)
+6. Save output next to the input file
+
+---
+
+## 🔐 Optional Signing Config
+
+If you'd like to use your own keystore, create a file named:
+
+```
+xapktoapk.sign.properties
 ```
 
-You can put the symlink to this script into the path. Like this (the absolute path to the script depends on your OS and home directory settings):
-```
-ln -s /home/username/github/xapk-to-apk/xapktoapk.py /usr/local/bin/xapktoapk
-``` 
-After that, the script can be executed from any directory, like this:
-```
-xapktoapk application.xapk
-```
-The result apk file `application.apk` will be placed next to your xapk file, in the same directory.
+Example contents:
 
-### Requirements
-
-You do not need any Python dependencies to run the script; however, you **MUST** have some tools installed in your OS, and paths to their executable **MUST** be set to the `$PATH` environment variable. The script relies on that.
-
-These tools are [apktool](https://github.com/iBotPeaches/Apktool), [zipalign](https://developer.android.com/tools/zipalign) and [apksigner](https://developer.android.com/tools/apksigner).
-
-`apktool` can be installed via your OS package manager: `apt`, `brew`, whatever, or pulled directly from GitHub. `zipalign` and `apksigner` are part of the Android SDK build-tools distribution and must be installed via `sdkmanager` in Android Studio or via CLI.
-
-Do not forget to make symlinks of these tools to the system's `$PATH` environment variable, OR add the entire build-tools directory to it.
-
-### Signing the result apk
-
-Since repackaging the splitted app bundle into the universal apk requires changing the original app's manifest file, the original signature will be broken, and the app must be resigned before you can install it on a real device.
-
-The easiest way to do it is to create an `xapktoapk.sign.properties` file with the values of your keystore file (see `xapktoapk.sign.properties.example` for an example).
-This file must be placed in the same directory with `xapktoapk.py` script, OR you can put it in your user home directory (`~`).
-This way, repacked apk files will be signed automatically. 
-
-If you don't want to create a dedicated keystore to sign the result apk files, you can use your default Android SDK debug keystore. In this case, the contents of the `xapktoapk.sign.properties` file should look like this:
 ```
 sign.enabled=true
-sign.keystore.file=/home/username/.android/debug.keystore 
-sign.keystore.password=android
-sign.key.alias=androiddebugkey
-sign.key.password=android
+sign.keystore.file=tools/my-release-key.keystore
+sign.keystore.password=yourKeystorePassword
+sign.key.alias=yourKeyAlias
+sign.key.password=yourKeyPassword
 ```
-The `sign.keystore.file` value in the example above is for Linux. Set the absolute path according to your OS and system user name.
 
-By default, the resigning of the result apk files is disabled.
-If you do not want to sign it automatically, you don't have to do it. You can just sign the apk file manually after the conversion is completed.
+If `sign.enabled` is `true` and this file is present, your keystore will be used.
+
+---
+
+## 📁 Output
+
+On success, a signed, installable APK will be saved to:
+
+```
+<CurrentDir>\YourApp.apk
+```
+
+---
+
+## 📝 License
+
+This project is a fork of [https://github.com/rumangerst/xapk-to-apk](https://github.com/rumangerst/xapk-to-apk), originally released under the MIT License.
+
