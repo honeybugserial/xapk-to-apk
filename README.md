@@ -92,5 +92,5 @@ On success, a signed, installable APK will be saved to:
 
 ## 📝 License
 
-This project is a fork of [https://github.com/rumangerst/xapk-to-apk](https://github.com/rumangerst/xapk-to-apk), originally released under the MIT License.
+This project is a fork of [[https://github.com/LuigiVampa92/xapk-to-apk)], originally released under the MIT License.
 
